@@ -17,7 +17,6 @@ Finally there is a copy command to move the files where you want.
 To create a schedule type
 crontab -e
 Add your schedules to the end
-# m h  dom mon dow   command
   0  8 * * * /opt/bitnami/apps/makenews/make.sh
   55 20 * * * /opt/bitnami/apps/makenews/make.sh
 In this example it means run the page making script at 0800 and 2055.
