@@ -2,9 +2,13 @@
 PHP scripts to make TTI teletext pages from the BBC News website
 
 If you do not already have the php interpreter installed type
+sudo apt-get update
 sudo apt-get install php5-common php5-cli
-
-Place all the files in a handy folder. In my case I'm using /opt/bitnami/apps/makenews
+Place all the files in a handy folder. In my case I'm using /home/pi/makenews.
+To make it easier to update files I'll use git.
+sudo apt-get install git
+git clone https://github.com/peterkvt80/makenews/ ~/makenews/
+# make
 The top level is make.sh. You'll need to edit make.sh to suit your file organisation.
 
 make.sh works like this:
@@ -28,4 +32,27 @@ In this example it means run the page making script at 0800 and 2055.
 Muttlee organises the services simply as named subdirectories. The last command of make.sh copies the files into this folder:
 This means copy all the ttix file to the BBCNEWS folder.
 cp -f *.ttix /opt/bitnami/muttlee/BBCNEWS
+
+# Teefax
+If adding news to Teefax, you need to checkout the Teefax pages 
+# Get the current Teefax pages
+svn checkout http://localhost/svn/teletext /home/pi/teletext
+
+Add these lines to make.sh to copy the files to the repository
+
+    rm BBC100.ttix
+    rm BBC102.ttix
+    cd /home/pi/teletext
+    svn update
+    cp -f /home/pi/makenews/*.ttix .
+    svn commit --message "Auto generated BBC News"
+
+But when you run it then it won't actually work.
+You need to add the BBC news pages
+
+    cd /home/pi/teletext
+    svn add BBC*.*
+    
+The commit will work the next time
+    
 
