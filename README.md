@@ -40,19 +40,28 @@ svn checkout http://localhost/svn/teletext /home/pi/teletext
 
 Add these lines to make.sh to copy the files to the repository
 
+    #!/bin/sh
+
+    cd /home/pi/makenews
+    php newsreader.php
+    ./render.sh
+    php tti7bit.php
+    #mv BBC100.ttix BBC100.ttix.BAK
+
     rm BBC100.ttix
     rm BBC102.ttix
     cd /home/pi/teletext
     svn update
     cp -f /home/pi/makenews/*.ttix .
-    svn commit --message "Auto generated BBC News"
+    svn commit --non-interactive --username Heine --password Kin --message "Auto generated BBC News"
 
-But when you run it then it won't actually work.
-You need to add the BBC news pages
+
+Run this script to create the pages but it won't commit them just yet.
+The first time you need to add the BBC news pages to the repository
 
     cd /home/pi/teletext
     svn add BBC*.*
     
-The commit will work the next time
+The next time you run the script it will do the commit.
     
 
