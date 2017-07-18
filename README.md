@@ -6,8 +6,11 @@ sudo apt-get update
 sudo apt-get install php5-common php5-cli
 Place all the files in a handy folder. In my case I'm using /home/pi/makenews.
 To make it easier to update files I'll use git.
+
   sudo apt-get install git
+
   git clone https://github.com/peterkvt80/makenews/ ~/makenews/
+  
 # make
 The top level is make.sh. You'll need to edit make.sh to suit your file organisation.
 
