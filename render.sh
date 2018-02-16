@@ -1,6 +1,7 @@
 #!/bin/sh
 
 #render.bat
+php weatherreader.php
 php newsindex.php > BBC100.tti
 php newsindex2.php > BBC102.tti
 php newsformat.php page0.html 10400 > BBC104.tti
@@ -24,3 +25,4 @@ php newsformat.php page17.html 12100 > BBC121.tti
 php newsformat.php page18.html 12200 > BBC122.tti
 php newsformat.php page19.html 12300 > BBC123.tti
 php newsformat.php page20.html 12400 > BBC124.tti
+php weathermap.php > MENU401.tti
