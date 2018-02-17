@@ -8,20 +8,19 @@
 You can copy/paste the following as a reference in different code
 
 /*
-City area	|			Array element numbers
-AB	 2	|	Max Temperature							0
-BE	 11	|	Min Temperature							1
-CA	 7	|	Weather									2
-CR	 6	|	Headline								3
-ED	 3	|	Time (e.g. This Evening and tonight)	4
-EX	 10	|	Summary									5
-IN	 1	|	Time (e.g 19:00)						6
-LO	 9	|
-MA	 5	|
-NE	 4	|
-ST	 8	|
+City area	abr	no	|	Array element numbers
+Aberdeen	AB	2	|	Max Temperature							0
+Belfast		BE	11	|	Min Temperature							1
+Cambridge	CA	7	|	Weather									2
+Cardiff		CR	6	|	Headline								3
+Edinburgh	ED	3	|	Time (e.g. This Evening and tonight)	4
+Exeter		EX	10	|	Summary									5
+Inverness	IN	 1	|	Time (e.g 19:00)						6
+London		LO	9	|	Wind Direction							7
+Manchester	MA	5	|	Wind Speed								8
+Newcastle	NE	4	|	
+Strafford	ST	8	|	
 */
-
 include "simple_html_dom.php";
 
 $cities=array('AB','BE','CA','CR','ED','EX','IN','LO','MA','NE','ST');
@@ -45,35 +44,51 @@ function saveData($file,$day)
 	$temp=$html->find('span[class=dayTemp]');
 	$temp=$temp[$a]->plaintext;
 	$temp=str_replace('	', '', $temp);
-	$temp=str_replace('&nbsp;&deg;', '', $temp);
+	$temp=str_replace('&nbsp;&deg;', '', $temp);	// Max Day Temperature
 	$temp=str_replace(' ', '', $temp);
 	$temp=str_replace('C', '', $temp);
 	$maxtemp=$temp;
+	
 	$temp=$html->find('span[class=nightTemp]');
 	$temp=$temp[$a]->plaintext;
 	$temp=str_replace('	', '', $temp);
-	$temp=str_replace('&nbsp;&deg;', '', $temp);
+	$temp=str_replace('&nbsp;&deg;', '', $temp);	// Min Night Temperature
 	$temp=str_replace(' ', '', $temp);
 	$temp=str_replace('C', '', $temp);
 	$mintemp=$temp;
+	
 	$weather=$html->find('tr[class="weatherWX"]');
 	$weather=$weather[$a]->find('td');
 	$weather=$weather[$c]->title;
-	$time=$html->find('tr[class="weatherTime"]');
+	$time=$html->find('tr[class="weatherTime"]');	// Time 
 	$time=$time[$a]->find('td');
 	$time=$time[$c]->plaintext;
-	$forecast=$html->find('div[id=forecastTextContent]');
+	
+	$forecast=$html->find('div[id=forecastTextContent]');	// Headline weather
 	$headline=$forecast[0]->find('p');
-	$summary=$headline[$a+1]->plaintext;
+	
+	$summary=$headline[$a+1]->plaintext;	// Weather Summary
+	$summary=substr($summary, 0, -29);
+	$summary=rtrim($summary,',');
+	$summary=rtrim($summary).'.';
+	
 	$headline=$headline[$b]->plaintext;
-	$heading=$forecast[0]->find('h4');
+	$heading=$forecast[0]->find('h4');	// Weather Heading
 	$heading=$heading[$a+1]->plaintext;
+	
 	$wind=$html->find('tr[class=weatherWind wxContent]');
-	$direction=$wind[0]->find('span[class=direction]');
+	$direction=$wind[$a]->find('span[class=direction]');	// Wind Direction
 	$direction=$direction[1]->plaintext;
-	$speed=$wind[0]->find('i[class=icon]');
-	$speed=$speed[0]->plaintext;
-	return "$maxtemp	$mintemp	$weather	$headline	$heading	$summary	$time	$direction\r\n";
+	$direction=str_replace(' ', '', $direction);
+	
+	$speed=$wind[$a]->find('i[class=icon]');
+	$speed=$speed[1]->plaintext;
+	$speed=str_replace('	', '', $speed);
+	$speed=str_replace('&nbsp;&deg;', '', $speed);	// Wind Speed
+	$speed=str_replace(' ', '', $speed);
+	$speed=str_replace('C', '', $speed);
+	
+	return "$maxtemp	$mintemp	$weather	$headline	$heading	$summary	$time	$direction	$speed\r\n";
 }
 
 function loadData($field,$t)
