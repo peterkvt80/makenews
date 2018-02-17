@@ -10,17 +10,17 @@
 $area=3; // City. Currently set to Belfast.
 /*
 City area	abr	no	|	Array element numbers
-Aberdeen	AB	2	|	Max Temperature							0
-Belfast		BE	11	|	Min Temperature							1
+Aberdeen	AB	1	|	Max Temperature							0
+Belfast		BE	3	|	Min Temperature							1
 Cambridge	CA	7	|	Weather									2
-Cardiff		CR	6	|	Headline								3
-Edinburgh	ED	3	|	Time (e.g. This Evening and tonight)	4
+Cardiff		CR	8	|	Headline								3
+Edinburgh	ED	2	|	Time (e.g. This Evening and tonight)	4
 Exeter		EX	10	|	Summary									5
-Inverness	IN	 1	|	Time (e.g 19:00)						6
+Inverness	IN	0	|	Time (e.g 19:00)						6
 London		LO	9	|	Wind Direction							7
 Manchester	MA	5	|	Wind Speed								8
 Newcastle	NE	4	|	
-Strafford	ST	8	|	
+Stafford	ST	6	|	
 */
 include "simpleweather.php";
 include "replace.php";
