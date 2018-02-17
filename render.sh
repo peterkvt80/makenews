@@ -26,3 +26,4 @@ php newsformat.php page18.html 12200 > BBC122.tti
 php newsformat.php page19.html 12300 > BBC123.tti
 php newsformat.php page20.html 12400 > BBC124.tti
 php weathermap.php > MENU401.tti
+php weatherformat.php > MENU402.tti
