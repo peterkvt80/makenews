@@ -24,7 +24,7 @@ ST	 8	|
 require "simpleweather.php";
 
 $IN=loadData('0','1');
-$AB=loadData('1','1');
+$AB=loadData('1','1');		// Get weather data from simpleweather
 $ED=loadData('2','1');
 $BE=loadData('3','1');
 $NE=loadData('4','1');
@@ -44,38 +44,14 @@ function writeHeader()
 
 function findWeather($weather)
 {
-	$output=array();
-	$weather=strtolower($weather);
-	if (strpos($weather, 'cloudy') !== false) {
-		array_push($output,'Cloudy');
-	}
-	if (strpos($weather, 'overcast') !== false) {
-		array_push($output,'Cloudy');
-	}
-	if (strpos($weather, 'heavy rain') !== false) {
-		array_push($output,'Heavy Rain');
-	}
-	if (strpos($weather, 'light rain') !== false) {
-		array_push($output,'Light Rain');
-	}
-	if (strpos($weather, 'sunny') !== false) {
-		array_push($output,'Sunny');
-	}
-	if (strpos($weather, 'sleet') !== false) {
-		array_push($output,'Sleet');
-	}
-	if (strpos($weather, 'light shower') !== false) {
-		array_push($output,'Light Rain');
-	}
-	if (strpos($weather, 'heavy shower') !== false) {
-		array_push($output,'Heavy Rain');
-	}
-	if (strpos($weather, 'clear') !== false) {
-		array_push($output,'Clear');
-	}
-	if (strpos($weather, 'mist') !== false) {
-		array_push($output,'Mist');
-	}
+	$output=array();	// All the weather comparison stuff that was here was useless and kept breaking so it's gone.
+	$weather=ucwords($weather);
+	$weather = str_replace('Night', '', $weather);
+	$weather = str_replace(' Shower', '', $weather);
+	$weather = str_replace(' Day', '', $weather);
+	//$weather = "debugABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	//echo "$weather\r\n";
+	$output=array($weather);	// *Temporary* See what this is like for a while...
 	return $output;
 }
 
@@ -84,15 +60,16 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 	$red="Q";
 	$green="R";
 	$yellow="S";
-	$magenta="U";
+	$magenta="U";	// Colours defined here - More can be put in if required! (unlikely)
 	$cyan="V";
 	$colours=array($cyan,$green,$magenta,$yellow,$red);
-	$cities=array('IN','AB','ED','NE','MA','CR','CA','ST','LO','EX','BE');//array('AB','BE','CA','CR','ED','EX','IN','LO','MA','NE','ST');
+	$cities=array('IN','AB','ED','NE','MA','CR','CA','ST','LO','EX','BE');	// Cities should be in THIS order or things won't work
+	$missedcities=$cities;
 	$a1=$red;
 	$a2=$red;
 	$a3=$red;
 	$a4=$red;
-	$a6=$red;
+	$a6=$red;	// All areas are red to begin with
 	$a5=$red;
 	$a8=$red;
 	$a7=$red;
@@ -103,8 +80,7 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 	$units=0;
 	$tens=0;
 	$places=array();
-	$missedcities=array('IN','AB','ED','NE','MA','CR','CA','ST','LO','EX','BE');
-	while ($tens<10)
+	while ($tens<10)	// Compare everywhere with everywhere
 	{
 		if($units==$tens)	// Don't compare the same weather (duh)
 		{
@@ -113,7 +89,7 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 		$return=array_intersect(findWeather(${$cities[$tens]}[2]),findWeather(${$cities[$units]}[2]));
 		if (!empty($return))
 		{
-			array_push($places,(array($tens,$units,$return)));
+			array_push($places,(array($tens,$units,$return)));	// Add all similar areas to the array
 		}
 		if($units==10)
 		{
@@ -132,7 +108,7 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 		if (!isset($$arrayname))
 		{
 			$$arrayname=array();
-			array_push($grouptitle,$arrayname);
+			array_push($grouptitle,$arrayname);	// If it isn't there already, add it to the list
 		}
 		if(!in_array($area[0],$$arrayname))
 		{
@@ -146,7 +122,7 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 	$weather=array();
 	foreach($grouptitle as $arrayname)
 	{
-		array_push($weather,(array((${$arrayname}[0]),$arrayname,$colours[0])));
+		array_push($weather,(array((${$arrayname}[0]),$arrayname,$colours[0])));	// Possibly make the colours more random
 		foreach($$arrayname as $area)
 		{
 			$missedcities[($area)]='';
@@ -155,55 +131,44 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 		}
 		array_shift($colours);
 	}
-	$missedcities=array_filter($missedcities);
+	$missedcities=array_filter($missedcities);	// These are all the places that weren't in groups
 	foreach($missedcities as $test)
 	{
 		$lcity=strtolower($test);
 		switch($lcity)
 		{
-			case 'be' : ;
+			case 'be' : ;	// Convert cities to numbers. I'm not sure no2 is used any more
 				$no=11;
-				$no2=2;
 				break;
 			case 'ca' : ;
 				$no=7;
-				$no2=3;
 				break;
 			case 'cr' : ;
 				$no=6;
-				$no2=4;
 				break;
 			case 'ex' : ;
 				$no=10;
-				$no2=6;
 				break;
 			case 'st' : ;
 				$no=8;
-				$no2=11;
 				break;
 			case 'ed' : ;
 				$no=3;
-				$no2=5;
 				break;
 			case 'in' : ;
 				$no=1;
-				$no2=7;
 				break;
 			case 'ab' : ;
 				$no=2;
-				$no2=1;
 				break;
 			case 'lo' : ;
 				$no=9;
-				$no2=8;
 				break;
 			case 'ma' : ;
 				$no=5;
-				$no2=9;
 				break;
 			case 'ne' : ;
 				$no=4;
-				$no2=10;
 				break;
 		}
 		$extra=findweather(${$test}[2]);
@@ -226,7 +191,7 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 				$len=11;
 				break;
 			case 'ca' : ;
-				$len=8;
+				$len=8;		// Get how long each text area is
 				break;
 			case 'cr' : ;
 			case 'ex' : ;
@@ -251,67 +216,67 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 				$len=14;
 				break;
 		}
-		$$city1=str_pad(" ",$len,' ',$pad);
+		$$city1=str_pad(" ",$len,' ',$pad);		// Make sure they all exist even if they're empty
 		$$city2=str_pad(" ",$len,' ',$pad);
 	}
 	foreach($weather as $text)
 	{
 		$pad=STR_PAD_LEFT;
-		switch(($text[0]+1))
+		switch(($text[0]+1))	// If space was a problem, these could become a separate function, but it's not so it won't.
 		{
 			case '01': ;
 				$city='in';
-				$len=17;
+				$len=15;
 				break;
 			case '02': ;
 				$city='ab';
-				$len=17;
+				$len=15;
 				break;
 			case '03': ;
 				$city='ed';
-				$len=16;
+				$len=14;
 				break;
 			case '04': ;
 				$city='ne';
-				$len=15;
+				$len=13;
 				break;
 			case '05': ;
 				$city='ma';
-				$len=12;
+				$len=10;
 				break;
 			case '06': ;
 				$city='cr';
 				$pad=STR_PAD_RIGHT;
-				$len=14;
+				$len=12;
 				break;
 			case '07': ;
 				$city='ca';
-				$len=9;
+				$len=7;
 					break;
 			case '08': ;
 				$city='st';
 				$pad=STR_PAD_RIGHT;
-				$len=14;
+				$len=12;
 				break;
 			case '09': ;
 				$city='lo';
-				$len=11;
+				$len=9;
 				break;
 			case '10': ;
 				$city='ex';
 				$pad=STR_PAD_RIGHT;
-				$len=14;
+				$len=12;
 				break;
 			case '11': ;
 				$city='be';
 				$pad=STR_PAD_RIGHT;
-				$len=12;
+				$len=10;
 				break;
 			}
 			switch($text[2])
 			{
 				case "Q": ;
-					$textcol="A";
+					$textcol="A";	// Make sure the text is the same colour as the area it describes
 					break;
 				case "R": ;
 					$textcol="B";
@@ -329,11 +294,11 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 			$city1=$city.'1';
 			$city2=$city.'2';
 			$A=1;
-			$utext=explode('\r\n',wordwrap($text[1],$len,'\r\n'));		// Wrap the text into separate lines
+			$utext=explode('\r\n',wordwrap($text[1],$len,'\r\n',true));
 			foreach ($utext as $text)
 			{
 				$city1=$city.$A;
-				$$city1=str_pad("$textcol$text",$len,' ',$pad);
+				$$city1=str_pad("$textcol$text",$len+2,' ',$pad); // +2 to take the control code into account.
 				$A++;
 			}
 		}
@@ -341,10 +306,10 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 	$mh = date('m');
 	$hr = date('H');
 	$mn = date('i');
-	$header = "P401CCX E$hr$mn $de$mhFWeathermap      AAuto";
+	$header = "P401CCX E$hr$mn $de$mhFWeathermap      AAuto";	// Internal service header, remove on air
 	$temp=0;
 	if ($s=='2') $temp=1;
-	$title=$AB[4].' '.$AB[6];
+	$title=$AB[4].' '.$AB[6];	 // This needs attention...
 	$title=str_replace(':', '', $title);
 	$title=str_pad($title,40,' ',STR_PAD_BOTH);	// Centered Title
 	$title=substr($title,3);
@@ -359,7 +324,7 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 	printf ("OL,3,           Z$a1`?0~G%1$02d$a1%\   $in1\r\n",$IN[$temp]);
 	echo "OL,4,           $a1Zj**gppp $in2\r\n";
 	echo "OL,5,           ^Z$a2({5                \r\n";
-	printf ("OL,6,           ^Z$a2!'~G %1$02d"."$a2"."!$ab1\r\n",$AB[$temp]);
+	printf ("OL,6,           ^Z$a2!'~G %1$02d"."$a2"."!$ab1\r\n",$AB[$temp]);		// This is a real mess, but it works
 	echo "OL,7,           ^Z$a2 ~ow1 $ab2\r\n";
 	echo "OL,8,$be1^Z$a3*y?sp  $ed1\r\n";
 	printf ("OL,9,           ^Z$a3"."j)\"G %1$02d$a3} $ed2\r\n",$ED[$temp]);
@@ -375,7 +340,7 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 	echo "OL,19,             ^Z$a6"."! +/'i"."$a9"."qp0        \r\n";
 	printf ("OL,20,$ex1^Z$a10  tG %1$02d"."$a9"."/!        \r\n",$LO[$temp]);
 	printf ("OL,21,$ex2Z$a10 zG%1$02d"."$a10"."^/s/$a9/? $lo1\r\n",$EX[$temp]);
-	echo "OL,22,            Z$a10"."8?' \"'    \"               \r\n";
+	echo "OL,22,            Z$a10"."8?' \"'    \"    $lo2\r\n";
 	echo "OL,23,D]G        From the Met Office          \r\n";
 	echo "OL,24,AN.Ire WeathBSportCTrav Head FMain Menu \r\n";
 	echo "FL,402,300,430,100,0,199\r\n";
