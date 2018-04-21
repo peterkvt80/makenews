@@ -46,12 +46,11 @@ function findWeather($weather)
 {
 	$output=array();	// All the weather comparison stuff that was here was useless and kept breaking so it's gone.
 	$weather=ucwords($weather);
-	$weather = str_replace('Night', '', $weather);
-	$weather = str_replace(' Shower', '', $weather);
+	$weather = str_replace(' Night', '', $weather);
+	if (strpos($weather, 'Rain') !== false) 
+		$weather = str_replace(' Shower', '', $weather);
 	$weather = str_replace(' Day', '', $weather);
-	//$weather = "debugABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	//echo "$weather\r\n";
-	$output=array($weather);	// *Temporary* See what this is like for a while...
+	$output=array($weather);
 	return $output;
 }
 
@@ -60,9 +59,11 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 	$red="Q";
 	$green="R";
 	$yellow="S";
-	$magenta="U";	// Colours defined here - More can be put in if required! (unlikely)
+	$magenta="U";	// Colours defined here
 	$cyan="V";
-	$colours=array($cyan,$green,$magenta,$yellow,$red);
+	$blue="T";
+	$white="W";
+	$colours=array($cyan,$green,$magenta,$yellow,$blue,$red,$white);
 	$cities=array('IN','AB','ED','NE','MA','CR','CA','ST','LO','EX','BE');	// Cities should be in THIS order or things won't work
 	$missedcities=$cities;
 	$a1=$red;
@@ -290,6 +291,12 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 				case "V": ;
 					$textcol="F";
 					break;
+				case "T": ;
+					$textcol="D";
+					break;
+				case "W": ;
+					$textcol="G";
+					break;
 			}
 			$city1=$city.'1';
 			$city2=$city.'2';
@@ -306,10 +313,10 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 	$mh = date('m');
 	$hr = date('H');
 	$mn = date('i');
-	$header = "P401CCX E$hr$mn $de$mhFWeathermap      AAuto";	// Internal service header, remove on air
-	$temp=0;
+	$header = "P401CCX E$hr$mn $de$mhFWeathermap 1.0  AAuto";	// Internal service header, remove on air
+	$temp=0;				// If its nighttime, get the minimum temp, otherwise get max
 	if ($s=='2') $temp=1;
-	$title=$AB[4].' '.$AB[6];	 // This needs attention...
+	$title=$AB[4].' '.$AB[6];
 	$title=str_replace(':', '', $title);
 	$title=str_pad($title,40,' ',STR_PAD_BOTH);	// Centered Title
 	$title=substr($title,3);
@@ -347,15 +354,15 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 }
 writeHeader();
 writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,1);
-$AB=loadData('0','2');
-$BE=loadData('1','2');
-$CA=loadData('2','2');
-$CR=loadData('3','2');
-$ED=loadData('4','2');
-$EX=loadData('5','2');
-$IN=loadData('6','2');
-$LO=loadData('7','2');
-$MA=loadData('8','2');
-$NE=loadData('9','2');
-$ST=loadData('10','2');
+$IN=loadData('0','2');
+$AB=loadData('1','2');		// Get weather data from simpleweather
+$ED=loadData('2','2');
+$BE=loadData('3','2');
+$NE=loadData('4','2');
+$MA=loadData('5','2');
+$ST=loadData('6','2');
+$CA=loadData('7','2');
+$CR=loadData('8','2');
+$LO=loadData('9','2');
+$EX=loadData('10','2');
 writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,2);

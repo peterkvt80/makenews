@@ -15,17 +15,15 @@ Cambridge	CA	7	|	Weather									2
 Cardiff		CR	6	|	Headline								3
 Edinburgh	ED	3	|	Time (e.g. This Evening and tonight)	4
 Exeter		EX	10	|	Summary									5
-Inverness	IN	 1	|	Time (e.g 19:00)						6
+Inverness	IN	1	|	Time (e.g 19:00)						6
 London		LO	9	|	Wind Direction							7
 Manchester	MA	5	|	Wind Speed								8
-Newcastle	NE	4	|	
-Strafford	ST	8	|	
+Newcastle	NE	4	|	Day										9
+Strafford	ST	8	|	Location								10
 */
 include "simple_html_dom.php";
 
-$cities=array('AB','BE','CA','CR','ED','EX','IN','LO','MA','NE','ST');
-
-function saveData($file,$day)
+function saveData($http,$day=0,$hour="n")
 {
 	switch($day)
 	{
@@ -37,12 +35,16 @@ function saveData($file,$day)
 	case "1" : ;
 		$a=1;
 		$b=2;
-		$c=6;
+		$c=1;
 		break;
 	}
-	$html=file_get_html("$file");
+	$html=file_get_html("$http");
+	
+	if ($hour=="n")
+	{
+	$val=1;
 	$temp=$html->find('span[class=dayTemp]');
-	$temp=$temp[$a]->plaintext;
+	$temp=$temp[$day]->plaintext;
 	$temp=str_replace('	', '', $temp);
 	$temp=str_replace('&nbsp;&deg;', '', $temp);	// Max Day Temperature
 	$temp=str_replace(' ', '', $temp);
@@ -50,52 +52,103 @@ function saveData($file,$day)
 	$maxtemp=$temp;
 	
 	$temp=$html->find('span[class=nightTemp]');
-	$temp=$temp[$a]->plaintext;
+	$temp=$temp[$day]->plaintext;
 	$temp=str_replace('	', '', $temp);
 	$temp=str_replace('&nbsp;&deg;', '', $temp);	// Min Night Temperature
 	$temp=str_replace(' ', '', $temp);
 	$temp=str_replace('C', '', $temp);
 	$mintemp=$temp;
+	}
+	else
+	{
+	$val=$hour;
+	$temp=$html->find('tr[class="weatherTemp"]');
+	$temp=$temp[$day]->find('i[class="icon icon-animated"]');
+	$temp=$temp[$hour]->plaintext;
+	$temp=str_replace('	', '', $temp);
+	$temp=str_replace('&nbsp;&deg;', '', $temp);	// Hour Temperature
+	$temp=str_replace(' ', '', $temp);
+	$temp=str_replace('C', '', $temp);
+	$maxtemp=$temp;
+	$mintemp=$temp;
+	}
 	
-	$weather=$html->find('tr[class="weatherWX"]');
-	$weather=$weather[$a]->find('td');
-	$weather=$weather[$c]->title;
-	$time=$html->find('tr[class="weatherTime"]');	// Time 
-	$time=$time[$a]->find('td');
-	$time=$time[$c]->plaintext;
+	if ($hour=="n")
+	{
+		$weather=$html->find('img[class="icon wxIcon"]');	// Weather
+		$weather=$weather[$day]->title;
+	}
+	else
+	{
+		$weather=$html->find('tr[class="weatherWX"]');
+		$weather=$weather[$day]->find('td');
+		$weather=$weather[$hour]->title;
+	}
+	
+	if ($hour=="n")
+	{
+	$timer=$html->find('tr[class="weatherTime"]');	// Time 
+	$time=$timer[$day]->find('td',1);
+	$time=$time->plaintext;
+	$time2=$timer[$day]->find('td',-1);
+	$time.="-";
+	$time.=$time2->plaintext;
+	}
+	else
+	{
+	$time=$html->find('tr[class="weatherTime"]');
+	$time=$time[$day]->find('td');
+	$time=$time[$hour]->plaintext;
+	}
 	
 	$forecast=$html->find('div[id=forecastTextContent]');	// Headline weather
 	$headline=$forecast[0]->find('p');
 	
-	$summary=$headline[$a+1]->plaintext;	// Weather Summary
+	$summary=$headline[$day+1]->plaintext;	// Weather Summary
 	$summary=substr($summary, 0, -29);
 	$summary=rtrim($summary,',');
 	$summary=rtrim($summary).'.';
 	
 	$headline=$headline[$b]->plaintext;
 	$heading=$forecast[0]->find('h4');	// Weather Heading
-	$heading=$heading[$a+1]->plaintext;
+	$heading=$heading[$day+1]->plaintext;
 	
 	$wind=$html->find('tr[class=weatherWind wxContent]');
-	$direction=$wind[$a]->find('span[class=direction]');	// Wind Direction
-	$direction=$direction[1]->plaintext;
+	$direction=$wind[$day]->find('span[class=direction]');	// Wind Direction
+	$direction=$direction[$val]->plaintext;
 	$direction=str_replace(' ', '', $direction);
 	
-	$speed=$wind[$a]->find('i[class=icon]');
-	$speed=$speed[1]->plaintext;
+	$speed=$wind[$day]->find('i[class=icon]');
+	$speed=$speed[$val]->plaintext;
 	$speed=str_replace('	', '', $speed);
 	$speed=str_replace('&nbsp;&deg;', '', $speed);	// Wind Speed
 	$speed=str_replace(' ', '', $speed);
 	$speed=str_replace('C', '', $speed);
 	
-	return "$maxtemp	$mintemp	$weather	$headline	$heading	$summary	$time	$direction	$speed\r\n";
+	$day2=$day;
+	if ($hour=="n" && $day=="0") $day="Now";
+	else
+	{
+	$day=$html->find("span[class=short-date]");
+	$day=$day[$day2]->plaintext;
+	$day=str_replace('	', '', $day);
+	$day=str_replace(' ', '', $day);
+	}
+	
+	$location=$html->find('h1');	// Location
+	$location=$location[0]->plaintext;
+	$location=str_replace(' ', '', $location);
+	$location=str_replace('weather', '', $location);
+	
+	// Any new fields are added at the end of the string to keep backwards compatibility
+	return "$maxtemp	$mintemp	$weather	$headline	$heading	$summary	$time	$direction	$speed	$day	$location\r\n";
 }
 
 function loadData($field,$t)
 {
 	if($t=='1')
 	{
-		$rawdata=file("weather.txt");
+		$rawdata=file("weather1.txt");
 	}
 	else
 	{
