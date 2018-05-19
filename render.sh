@@ -1,6 +1,15 @@
 #!/bin/sh
 
 #render.bat
+php tvlistingsreader.php
+php listings.php BBC1 0 > MENU601.tti
+php listings.php BBC2 0 > MENU602.tti
+php listings.php C4 0 > MENU604.tti
+php listings.php C5 0 > MENU605.tti
+php listings.php BBC1 3 > MENU631.tti
+php listings.php BBC2 3 > MENU632.tti
+php listings.php C4 3 > MENU634.tti
+php listings.php C5 3 > MENU635.tti
 php weatherreader.php
 php newsindex.php > BBC100.tti
 php newsindex2.php > BBC102.tti
