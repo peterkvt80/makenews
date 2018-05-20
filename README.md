@@ -3,7 +3,7 @@ PHP scripts to make TTI teletext pages from the BBC News website
 
 If you do not already have the php interpreter installed type
 
-<b>sudo apt-get update
+<b>sudo apt-get update</b>
 
 If you've got a version of Raspbian<b> older </b>than Stretch, type
 
