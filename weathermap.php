@@ -22,18 +22,30 @@ ST	 8	|
 */
 
 require "simpleweather.php";
+include "header.php";
 
-$IN=loadData('0','1');
-$AB=loadData('1','1');		// Get weather data from simpleweather
-$ED=loadData('2','1');
-$BE=loadData('3','1');
-$NE=loadData('4','1');
-$MA=loadData('5','1');
-$ST=loadData('6','1');
-$CA=loadData('7','1');
-$CR=loadData('8','1');
-$LO=loadData('9','1');
-$EX=loadData('10','1');
+$inhtml=file_get_html("Inverness.html");
+$IN=getWeather($inhtml,0);
+$abhtml=file_get_html("Aberdeen.html");
+$AB=getWeather($abhtml,0);
+$edhtml=file_get_html("Edinburgh.html");
+$ED=getWeather($edhtml,0);
+$behtml=file_get_html("Belfast.html");
+$BE=getWeather($behtml,0);
+$nehtml=file_get_html("NewcastleUponTyne.html");
+$NE=getWeather($nehtml,0);
+$mahtml=file_get_html("Manchester.html");	// Get the latest weather, keep the html in the memory for later
+$MA=getWeather($mahtml,0);
+$sthtml=file_get_html("Stafford.html");
+$ST=getWeather($sthtml,0);
+$cahtml=file_get_html("Cambridge.html");
+$CA=getWeather($cahtml,0);
+$crhtml=file_get_html("Cardiff.html");
+$CR=getWeather($crhtml,0);
+$lohtml=file_get_html("London.html");
+$LO=getWeather($lohtml,0);
+$exhtml=file_get_html("Exeter.html");
+$EX=getWeather($exhtml,0);
 
 function writeHeader()
 {
@@ -138,7 +150,7 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 		$lcity=strtolower($test);
 		switch($lcity)
 		{
-			case 'be' : ;	// Convert cities to numbers. I'm not sure no2 is used any more
+			case 'be' : ;	// Convert cities to numbers.
 				$no=11;
 				break;
 			case 'ca' : ;
@@ -309,11 +321,6 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 				$A++;
 			}
 		}
-	$de = date('d');
-	$mh = date('m');
-	$hr = date('H');
-	$mn = date('i');
-	$header = "P401CCX E$hr$mn $de$mhFWeathermap 1.0  AAuto";	// Internal service header, remove on air
 	$temp=0;				// If its nighttime, get the minimum temp, otherwise get max
 	if ($s=='2') $temp=1;
 	$title=$AB[4].' '.$AB[6];
@@ -325,13 +332,13 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 	echo "PS,8000\r\n";
 	echo "CT,15,T\r\n";
 	echo "RE,0\r\n";
-	echo "OL,0,$header\r\n";
+	intHeader();
 	echo "OL,1,T]G$title\r\n";
 	echo "OL,2,           ^Z$a1 4`~|}            G $s/2 \r\n";
-	printf ("OL,3,           Z$a1`?0~G%1$02d$a1%\   $in1\r\n",$IN[$temp]);
+	printf ("OL,3,           Z$a1`?0~G%1$02d$a1"."%%  $in1\r\n",$IN[$temp]);
 	echo "OL,4,           $a1Zj**gppp $in2\r\n";
 	echo "OL,5,           ^Z$a2({5                \r\n";
-	printf ("OL,6,           ^Z$a2!'~G %1$02d"."$a2"."!$ab1\r\n",$AB[$temp]);		// This is a real mess, but it works
+	printf ("OL,6,            Z$a2!'~G%1$02d"."$a2"."!$ab1\r\n",$AB[$temp]);		// This is a real mess, but it works
 	echo "OL,7,           ^Z$a2 ~ow1 $ab2\r\n";
 	echo "OL,8,$be1^Z$a3*y?sp  $ed1\r\n";
 	printf ("OL,9,           ^Z$a3"."j)\"G %1$02d$a3} $ed2\r\n",$ED[$temp]);
@@ -354,15 +361,17 @@ function writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,$s)
 }
 writeHeader();
 writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,1);
-$IN=loadData('0','2');
-$AB=loadData('1','2');		// Get weather data from simpleweather
-$ED=loadData('2','2');
-$BE=loadData('3','2');
-$NE=loadData('4','2');
-$MA=loadData('5','2');
-$ST=loadData('6','2');
-$CA=loadData('7','2');
-$CR=loadData('8','2');
-$LO=loadData('9','2');
-$EX=loadData('10','2');
+
+$IN=getWeather($inhtml,1);
+$AB=getWeather($abhtml,1);
+$ED=getWeather($edhtml,1);
+$BE=getWeather($behtml,1);
+$NE=getWeather($nehtml,1);
+$MA=getWeather($mahtml,1);	// Get the next time
+$ST=getWeather($sthtml,1);
+$CA=getWeather($cahtml,1);
+$CR=getWeather($crhtml,1);
+$LO=getWeather($lohtml,1);
+$EX=getWeather($exhtml,1);
+
 writePage($AB,$BE,$CA,$CR,$ED,$EX,$IN,$LO,$MA,$NE,$ST,2);

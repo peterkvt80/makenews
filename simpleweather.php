@@ -1,44 +1,41 @@
 <?php
 /*
-	simpleweather.php
+	simpleweather.php - version 1
 	Nathan J. Dane, 2018.
 	Gets a weather page, fetches what is needed from it and 
-	returns it as a nice, plain, Tab Separated Variable.
-   
-You can copy/paste the following as a reference in different code
-
-/*
-City area	abr	no	|	Array element numbers
-Aberdeen	AB	2	|	Max Temperature							0
-Belfast		BE	11	|	Min Temperature							1
-Cambridge	CA	7	|	Weather									2
-Cardiff		CR	6	|	Headline								3
-Edinburgh	ED	3	|	Time (e.g. This Evening and tonight)	4
-Exeter		EX	10	|	Summary									5
-Inverness	IN	1	|	Time (e.g 19:00)						6
-London		LO	9	|	Wind Direction							7
-Manchester	MA	5	|	Wind Speed								8
-Newcastle	NE	4	|	Day										9
-Strafford	ST	8	|	Location								10
+	returns it as a nice, plain, array or Tab Separated Variable.
+	
+	Array index
+	Max Temperature			0
+	Min Temperature			1
+	Weather					2
+	Headline				3
+	Time (e.g. Tonight)		4
+	Summary					5
+	Time (e.g 19:00)		6
+	Wind Direction			7
+	Wind Speed				8
+	Day						9
+	Location				10
+	
 */
-include "simple_html_dom.php";
 
-function saveData($http,$day=0,$hour="n")
+require "simple_html_dom.php";	// Won't work without this
+
+function getWeather($html,$day=0,$hour="n",$array=true)
 {
 	switch($day)
 	{
 	case "0" : ;
-		$a=0;
 		$b=0;
-		$c=1;
 		break;
 	case "1" : ;
-		$a=1;
 		$b=2;
-		$c=1;
+		break;
+	case "2" : ;
+		$b=4;
 		break;
 	}
-	$html=file_get_html("$http");
 	
 	if ($hour=="n")
 	{
@@ -77,39 +74,38 @@ function saveData($http,$day=0,$hour="n")
 	{
 		$weather=$html->find('img[class="icon wxIcon"]');	// Weather
 		$weather=$weather[$day]->title;
+		
+		$timer=$html->find('tr[class="weatherTime"]');	// Time 
+		$time=$timer[$day]->find('td',1);
+		$time=$time->plaintext;
+		$time2=$timer[$day]->find('td',-1);
+		$time.="-";
+		$time.=$time2->plaintext;
 	}
 	else
 	{
 		$weather=$html->find('tr[class="weatherWX"]');
 		$weather=$weather[$day]->find('td');
 		$weather=$weather[$hour]->title;
+		
+		$time=$html->find('tr[class="weatherTime"]');
+		$time=$time[$day]->find('td');
+		$time=$time[$hour]->plaintext;
 	}
-	
-	if ($hour=="n")
-	{
-	$timer=$html->find('tr[class="weatherTime"]');	// Time 
-	$time=$timer[$day]->find('td',1);
-	$time=$time->plaintext;
-	$time2=$timer[$day]->find('td',-1);
-	$time.="-";
-	$time.=$time2->plaintext;
-	}
-	else
-	{
-	$time=$html->find('tr[class="weatherTime"]');
-	$time=$time[$day]->find('td');
-	$time=$time[$hour]->plaintext;
-	}
-	
+
 	$forecast=$html->find('div[id=forecastTextContent]');	// Headline weather
 	$headline=$forecast[0]->find('p');
 	
 	$summary=$headline[$day+1]->plaintext;	// Weather Summary
-	$summary=substr($summary, 0, -29);
-	$summary=rtrim($summary,',');
-	$summary=rtrim($summary).'.';
+	$length=strrpos($summary,".",-5);
+	$length++;
+	$summary=substr($summary,0,$length);	// Remove "Maximum temperature", but leave the fullstop
 	
-	$headline=$headline[$b]->plaintext;
+	if($day<3)
+		$headline=$headline[$b]->plaintext;
+	else
+		$headline='';
+	
 	$heading=$forecast[0]->find('h4');	// Weather Heading
 	$heading=$heading[$day+1]->plaintext;
 	
@@ -141,21 +137,14 @@ function saveData($http,$day=0,$hour="n")
 	$location=str_replace('weather', '', $location);
 	
 	// Any new fields are added at the end of the string to keep backwards compatibility
-	return "$maxtemp	$mintemp	$weather	$headline	$heading	$summary	$time	$direction	$speed	$day	$location\r\n";
-}
-
-function loadData($field,$t)
-{
-	if($t=='1')
+	if($array==true)	// By default, we return an array
 	{
-		$rawdata=file("weather1.txt");
+		return array($maxtemp,$mintemp,$weather,$headline,$heading,$summary,$time,$direction,$speed,$day,$location);
 	}
 	else
 	{
-		$rawdata=file("weather2.txt");
+		return "$maxtemp	$mintemp	$weather	$headline	$heading	$summary	$time	$direction	$speed	$day	$location\r\n";
 	}
- 
-	$data=str_getcsv($rawdata[$field],"	");
-	return $data;
+	
 }
-//loadData('0');
+?>
