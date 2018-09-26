@@ -1,52 +1,37 @@
 <?php
-include "simple_html_dom.php";
-$rssfeed="http://feeds.bbci.co.uk/news/uk/rss.xml?edition=uk";	// BBC UK stories
-$rawFeed = file_get_contents($rssfeed);
-$xml = new SimpleXmlElement($rawFeed);
-$count=0;
-foreach($xml->channel->item as $chan) {
-	// Don't want video/sport stories. They don't render too well on teletext
-	if (strncmp($chan->title,"VIDEO:",6)) 
-	if (!strncmp($chan->link,"http://www.bbc.co.uk/news/",26))
+/*	newsreader.php
+	Nathan J. Dane, 2018
+	Takes advantage of the new BBC News AMP project to get stories 
+	for Ceefax that aren't a pain to scrape, use less internet and so
+	can be generated quicker.
+*/
+$nr=21;	// How many stories do we need?
+$li="https://www.bbc.co.uk/news/ampstories/headlines/index.html";	// BBC News AMP index
+
+include "simple_html_dom.php";	// Yup, still need this tho
+
+$html=file_get_html($li);	// Download the main index
+$i=0;
+foreach($html->find('amp-story-page') as $story)
+{
+	if($i == 0)	// Skip the first one because it's just a title page
 	{
-		$url=$chan->link; 
-		$str = file_get_html($url);
-		$title=$str->find("link[rel=canonical]");
-		$title=substr ($title[0],35);
-		$title=substr($title, 0, strpos( $title, '"'));
-		echo $title."\n";
-		if (!strncmp($title,"www.bbc.co.uk/news/av/",21))
-		{
-			continue 1;
-		}
-		echo $chan->title."\n";
-		file_put_contents("page$count.html",$str);	// Save each as Page<x>.html
-		$count++;
-		if ($count>10) break;	// Stop after we get the pages that we want
+		$i++;
+		continue 1;	// Probably a better way to do this
 	}
-} 
-$rssfeed="http://feeds.bbci.co.uk/news/world/rss.xml?edition=uk";	// BBC world stories
-$rawFeed = file_get_contents($rssfeed);
-$xml = new SimpleXmlElement($rawFeed);
-foreach($xml->channel->item as $chan) {
-	// Don't want video/sport stories. They don't render too well on teletext
-	if (strncmp($chan->title,"VIDEO:",6)) 
-    if (strncmp($chan->link,"http://www.bbc.co.uk/sport/",25))
-	{
-		$url=$chan->link; 
-		$str = file_get_html($url);
-		$title=$str->find("link[rel=canonical]");
-		$title=substr ($title[0],35);
-		$title=substr($title, 0, strpos( $title, '"'));
-		echo $title."\n";
-		if (!strncmp($title,"www.bbc.co.uk/news/av/",21))
-		{
-			continue 1;
-		}
-		echo $chan->title."\n";
-		file_put_contents("page$count.html",$str);	// Save each as Page<x>.html
-		$count++;
-		if ($count>20) exit;	// Stop after we get the pages that we want
-	}
-} 
+	$n=($i-1);	// Page Number is $i-1 for backwards compatibility
+	
+	$link=$story->find('a',0);	// Get the URL
+	$URL=$link->href;
+	
+	$title=$story->find('h1',0);	// Might as well echo the title
+	echo "$n: ".$title->plaintext."\n";	// Also add the page number. Could be useful for de-bugging later
+	
+	$page=file_get_contents($URL);	// Get the page!
+	file_put_contents("page$n.html",$page);	// Save it
+	
+	if($i >= $nr)	// When we've got everything we need, break
+		break;
+	$i++;
+}
 ?>
