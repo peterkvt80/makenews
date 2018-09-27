@@ -2,7 +2,7 @@
 // 5day.php makes the Five Day Forecast on P406. 
 // Written by Nathan Dane (c) 2017
 include "simpleweather.php";
-include "header.php";
+//include "header.php";
 
 function writeHeader()
 {
