@@ -2,7 +2,6 @@
 // current.php makes the Current UK Weather on P404. 
 // Written by Nathan Dane (c) 2017
 include "simple_html_dom.php";
-//include "header.php";
 
 echo "DE,UK Cities\r\n";
 echo "DS,Inserter\r\n";
@@ -14,7 +13,6 @@ function writeHeader($s)
 	echo "PN,4040$s\r\n";
 	echo "SC,000$s\r\n";
 	echo "PS,8040\r\n";
-	intHeader();
 	echo "OL,1,Wj#3kj#3kj#3kT]S |hh4|$|l4l<h4|h<h<4\r\n";
 	echo "OL,2,Wj \$kj \$kj 'kT]S ozz%1k5j5j7jwj7}\r\n";
 	echo "OL,3,W\"###\"###\"###T///-,,/,.,-.-.-.,-,-.,////\r\n";
