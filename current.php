@@ -2,6 +2,7 @@
 // current.php makes the Current UK Weather on P404. 
 // Written by Nathan Dane (c) 2017
 include "simple_html_dom.php";
+//include "header.php";
 
 echo "DE,UK Cities\r\n";
 echo "DS,Inserter\r\n";
@@ -13,6 +14,7 @@ function writeHeader($s)
 	echo "PN,4040$s\r\n";
 	echo "SC,000$s\r\n";
 	echo "PS,8040\r\n";
+	intHeader();
 	echo "OL,1,Wj#3kj#3kj#3kT]S |hh4|$|l4l<h4|h<h<4\r\n";
 	echo "OL,2,Wj \$kj \$kj 'kT]S ozz%1k5j5j7jwj7}\r\n";
 	echo "OL,3,W\"###\"###\"###T///-,,/,.,-.-.-.,-,-.,////\r\n";
@@ -30,15 +32,20 @@ function getData($html,$c,$mintemp)
 	global $mintemp;
 	global $title;
 	
-	$html=file_get_html("https://www.metoffice.gov.uk/mobile/observation/$html");
-	$html=$html->find('div[id="divDayModule1"]',-1);
+	$page=file_get_html("https://www.metoffice.gov.uk/mobile/observation/$html");
+	$html=$page->find('div[id=divDayModule1]',-1);
+	if ($html == null)
+	{
+		$html=$page->find('div[id=divDayModule0]',-1);
+		//echo "No divDayModule1, falling back to div[id=divDayModule0]";
+	}
 	
 	$title=$html->find('tr[class="weatherTime"]',-1);
 	$title=$title->find('td',-1)->plaintext;
 	$title=str_replace(':', '', $title);
 	$title=str_replace(' ', '', $title);
 	
-	$weather=$html->find('tr[class="weatherWX"]',-1);	// Weather
+	$weather=$html->find('tr[class=weatherWX]',-1);	// Weather
 	$weather=$weather->find('td',-1);
 	$weather=$weather->title;
 	$weather=str_replace('day', '', $weather);
@@ -140,7 +147,7 @@ function c2f($in)
 }
 
 writeHeader(1);
-echo "OL,9,FAberdeen      ".(getData("gfnt07u1s",'F',$mintemp))."\r\n";
+echo "OL,9,FAberdeen      ".(getData("gfnt07u10",'F',$mintemp))."\r\n";
 echo "OL,5,CCURRENT UK WEATHER: Report at $title\r\n";
 echo "OL,10, Aberystwyth   ".(getData("gcm45jgg9",'G',$mintemp))."\r\n";
 echo "OL,11,FBelfast       ".(getData("gcey94cuf",'F',$mintemp))."\r\n";
