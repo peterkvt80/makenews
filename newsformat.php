@@ -3,7 +3,7 @@
 // Uses simple_html_dom.php which can be downloaded from sourceforge
 include "simple_html_dom.php";
 include "replace.php";
-//include "header.php";
+include "header.php";
 // We can set up some template values here instead of hard coding them
 // Cope a header. Find the starting line, style and number of lines.
 // Also get ready to load in the footer
@@ -24,7 +24,7 @@ function outputheader($file,$content,$mppss)
 	echo "SC,1\r\n";	// Not sure! Think we need this for subpages
 	echo "PS,8040\r\n";	// Page settings TODO
 	echo "MS,0\r\n";	// Not sure
-	//intHeader();
+	intHeader();
 	// Which header do we want?
 
 	// Here we map from the RSS URL to the old category names. This table is obviously not complete!
@@ -194,7 +194,7 @@ function outputheader($file,$content,$mppss)
 		echo 'OL,23,„ƒNews Index‡102ƒFlash‡150ƒRegional‡160'."\r\n";
 		break;
 	
-	default;	// If all else fails, just say it's news. 
+	default;
 		echo "OL,1,Wj#3kj#3kj#3kT]S     xl0|,h44|h,$\r\n";
 		echo 'OL,2,Wj $kj $kj \'kT]S     j5s*uu?bs5'."\r\n";
 		echo 'OL,3,W"###"###"###T///////,-.,,/,,.-,.///////'."\r\n";
@@ -211,8 +211,7 @@ function outputheader($file,$content,$mppss)
 
 function outputline($lineNumber,$colour,$text,$maxline,$if,$ft)
 {
-	$utext=htmlspecialchars_decode ($text,ENT_QUOTES);		// Decode html entities
-	$utext=preg_replace('/\s+/', ' ',$utext);
+	$utext=	htmlspecialchars_decode ($text,ENT_QUOTES);		// Decode html entities
 	$utext=explode('\r\n',wordwrap($utext,39,'\r\n'));		// Wrap the text into separate lines
 	if (count($utext)+$lineNumber>$maxline)					// This would overflow so forget it
 	{	
@@ -253,12 +252,14 @@ $html = file_get_html($page);	// Get the whole file
 
 $cat= $html->find('meta[property="article:section"]');	// Category of story
 outputheader($page,$cat[0]->content,$mpp); 
+$body= $html->find('div[class=story-body]');	// Extract the body part as HTML
+$body=str_get_html($body[0]);	// Convert it back to DOM
 $title=$html->find("meta[property=og:title]");
 $title=substr ($title[0],35);
 $title=substr($title, 0, strpos( $title, '"'));
 $line+=outputline($line,'ƒ',$title,21,'n',$ft);	// Yellow (edit)
 
-$intro=$html->find('p[class=amp-o-paragraph--bold]');	// Intro para is white
+$intro=$body->find('p[class=story-body__introduction]');	// Intro para is white
 
 // If there is no introduction we won't be able to render this page
 if (!count($intro))
@@ -267,16 +268,22 @@ else
 	$line+=outputline($line,'‡',$intro[0]->plaintext,21,'n',$ft);
 $line++;
 $found=false;
-$count=0;
-foreach ($html->find('p[class="amp-o-paragraph"]') as $element)
+$paracount=0;
+foreach ($body->find('p') as $element)
 {
-	if ($count==0)
-	{
-		$count++;	// Skip the first one because it's a message about cookies, which aren't applicable here.
-		continue 1;	// Should probably change this so that it checks if it's the cookie message
-	}
 	if ($line>21)
 		break;
-	$line+=outputline($line,'†',$element->plaintext,21,'y',$ft);
+	if ($found) 
+	{
+		$line+=outputline($line,'†',$element->plaintext,21,'y',$ft);
+		$paracount++;
+	}
+	// We output nothing until we get to class=introduction
+	// This is the white opening paragraph.
+	// Then we do more p tags until we run out of space
+	if (strpos($element,"introduction"))
+		$found=true;	
 }
+if (!$found)
+	echo "OL,8,Sorry.this story can not be displayed";
 ?>
