@@ -1,16 +1,6 @@
 #!/bin/sh
 
 #render.bat
-php tvlistingsreader.php
-php listings.php BBC1 0 > MENU601.tti
-php listings.php BBC2 0 > MENU602.tti
-php listings.php C4 0 > MENU604.tti
-php listings.php C5 0 > MENU605.tti
-php listings.php BBC1 3 > MENU631.tti
-php listings.php BBC2 3 > MENU632.tti
-php listings.php C4 3 > MENU634.tti
-php listings.php C5 3 > MENU635.tti
-php weatherreader.php
 php newsindex.php > BBC100.tti
 php newsindex2.php > BBC102.tti
 php newsformat.php page0.html 10400 > BBC104.tti
@@ -34,21 +24,3 @@ php newsformat.php page17.html 12100 > BBC121.tti
 php newsformat.php page18.html 12200 > BBC122.tti
 php newsformat.php page19.html 12300 > BBC123.tti
 php newsformat.php page20.html 12400 > BBC124.tti
-php weathermap.php > MENU401.tti
-php weatherformat.php > MENU402.tti
-php weatherformat403.tti > MENU403.tti
-php sportreader.php
-php footindx.php > MENU302.tti
-php footformat.php foot0.html 30300 > MENU303.tti
-php footformat.php foot1.html 30400 > MENU304.tti
-php footformat.php foot2.html 30500 > MENU305.tti
-php footformat.php foot3.html 30600 > MENU306.tti
-php footformat.php foot4.html 30700 > MENU307.tti
-php footformat.php foot5.html 30800 > MENU308.tti
-php footformat.php foot6.html 30900 > MENU309.tti
-php footformat.php foot7.html 31000 > MENU310.tti
-php footformat.php foot8.html 31100 > MENU311.tti
-php footformat.php foot9.html 31200 > MENU312.tti
-php footformat.php foot10.html 31300 > MENU313.tti
-php footformat.php foot11.html 31400 > MENU314.tti
-php footformat.php foot12.html 31500 > MENU315.tti
