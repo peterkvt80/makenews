@@ -48,32 +48,22 @@ for ($i=0;$i<$count && $OL<22;$i++)
 	$headline = preg_replace("%,.*?,%", '', $title);
 	if ($OL<5) $textcol="\x8d";	// Double Height
 	
-	$headline=myTruncate2($headline, 70, " ");
+	$headline=myTruncate2($headline, 200, " ");
 	$headline = iconv("UTF-8", "ASCII//TRANSLIT", $headline);
 	$headline=wordwrap($headline,35,"\r\n");
 	$headline=explode("\r\n",$headline);
 
-$headline[0]=substr(str_pad($headline[0],35),0,35);
-	if ($OL==4) $headline[0]=strtoupper($headline[0]);
-	if (isset($headline[1]) && $OL+2<22) {
-		$headline[1]=substr(str_pad($headline[1],35),0,35);
-		if ($OL==4) $headline[1]=strtoupper($headline[1]);
-		echo "OL,$OL,$textcol$headline[0]\r\n";
+	$last = count($headline) - 1;
+	foreach ($headline as $idx => $line) {
+		if ($OL >= 22) break;
+		$line = substr(str_pad($line, 35), 0, 35);
+		if ($i == 0) $line = strtoupper($line);
+		if ($idx == $last) $line .= "\x83" . (104 + $i);
+		echo "OL,$OL,$textcol$line\r\n";
 		$OL++;
-		if ($i==0) $OL++;
-		$headline[1].="\x83";
-		echo "OL,$OL,$textcol$headline[1]".(104+$i)."\r\n";
-		$OL++;
-	} elseif ($OL+1<22) {
-		$headline[0].="\x83";
-		echo "OL,$OL,$textcol$headline[0]".(104+$i)."\r\n";
-		$OL++;
-	} else {
-		continue;
+		if ($i == 0) $OL++;
 	}
-	if ($i==0) { $OL+=1; }
-	if ($OL<22) { echo "OL,$OL, \r\n"; $OL++; }
+	if ($OL < 22) { echo "OL,$OL, \r\n"; $OL++; }
 }
-
 writeFooter();
 ?>
