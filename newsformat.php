@@ -222,6 +222,8 @@ function outputheader($file,$content,$mppss)
 function outputline($lineNumber,$colour,$text,$maxline,$if,$ft)
 {
 	$utext=	htmlspecialchars_decode ($text,ENT_QUOTES);		// Decode html entities
+	$utext = strtr($utext, $ft);
+	$utext = iconv("UTF-8", "ASCII//TRANSLIT", $utext);
 	$utext=explode('\r\n',wordwrap($utext,39,'\r\n'));		// Wrap the text into separate lines
 	if (count($utext)+$lineNumber>$maxline)					// This would overflow so forget it
 	{	

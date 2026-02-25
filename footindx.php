@@ -50,7 +50,7 @@ for ($i=0;$i<$count && $OL<22;$i++)
 	if ($OL<5) $textcol="\x8d";	// Double Height
 	
 	$headline=myTruncate2($headline, 200, " ");
-	$headline=str_replace(["\xe2\x80\x98","\xe2\x80\x99","\xe2\x80\x9c","\xe2\x80\x9d"],["'","'",'"','"'],$headline);
+	$headline = strtr($headline, $ft);
 	$headline = iconv("UTF-8", "ASCII//TRANSLIT", $headline);
 	$headline=wordwrap($headline,35,"\r\n");
 	$headline=explode("\r\n",$headline);
