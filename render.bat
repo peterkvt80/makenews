@@ -54,3 +54,4 @@ php footformat.php foot10.html 31300 > MENU313.tti
 php footformat.php foot11.html 31400 > MENU314.tti
 php footformat.php foot12.html 31500 > MENU315.tti
 del *.html
+del epg.xml
