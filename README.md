@@ -5,13 +5,7 @@ If you do not already have the php interpreter installed type
 
 <b>sudo apt-get update</b>
 
-If you've got a version of Raspbian<b> older </b>than Stretch, type
-
-<b>sudo apt-get install php5-common php5-cli</b>
-
-If you've got Raspbian Stretch or above, do
-
-<b>sudo apt-get install php7.0-common php7.0-cli php7.0-xml</b>
+<b>sudo apt-get install php8.4</b>
 
 Place all the files in a handy folder. In my case I'm using /home/pi/makenews.
 To make it easier to update files I'll use git.
