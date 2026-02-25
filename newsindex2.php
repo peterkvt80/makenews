@@ -37,94 +37,113 @@ function writeFooter()
 	echo "FL,103,104,160,100,F,199\r\n";
 }
 
-function writePage($a,$b,$ft)
+function getLines($i, $ft)
 {
-	$count=21;	// Number of headlines in P100
+	$page="page$i.html";
+	$html = file_get_html($page);
+	$title=$html->find("meta[property=og:title]");
+	$title=substr($title[0],35);
+	$title=substr($title, 0, strpos($title, '"'));
+	$headline = htmlspecialchars_decode($title, ENT_QUOTES);
+	$title = strtr($headline, $ft);
+	$headline = preg_replace("%,.*?,%", '', $title);
+	$headline = myTruncate2($headline, 200, " ");
+	$headline = iconv("UTF-8", "ASCII//TRANSLIT", $headline);
+	$headline = wordwrap($headline, 35, "\r\n");
+	return explode("\r\n", $headline);
+}
+
+function writePage($ft, $b=1)
+{
+	global $first;
+	$first = [];
+	$count=21;
 	$OL=4;
-	for ($i=0;$i<$count && $OL<21;$i++)
-		{
-		$page="page$i.html";		// The default input name
-		$html = file_get_html($page);	// Get the whole file
-		$title=$html->find("meta[property=og:title]");
-		$title=substr ($title[0],35);
-		$title=substr($title, 0, strpos( $title, '"'));
-		$headline=	htmlspecialchars_decode ($title,ENT_QUOTES);		// Decode html entities	
-		$textcol='‡';	// white
-		$title = strtr($headline, $ft);
-		$headline = preg_replace("%,.*?,%", '', $title);
-		if ($OL<7) $textcol='†';	// cyan
-	
-		$headline=myTruncate2($headline, 35, " ");
-		if (strlen($headline)<36)
-		{
-			$headline=substr(str_pad($headline,35),0,35);
-			$headline.='ƒ';
-		
-		}
-		global $first;
-		
-		if ($OL==10)
+	$MAXOL=17;
+
+	for ($i=0; $i<$count && $OL<$MAXOL; $i++)
+	{
+		$lines = getLines($i, $ft);
+		$numLines = count($lines);
+		$textcol="\x87";	// white
+		if ($OL<7) $textcol="\x86";
+
+		$needed = $numLines + ($OL + $numLines < $MAXOL ? 1 : 0);
+		if ($OL + $needed > $MAXOL) break;
+
+		$output = "";
+		foreach ($lines as $li => $line) {
+			$line = substr(str_pad($line, 35), 0, 35);
+			if ($li == $numLines-1) {
+				$line .= "\x83";
+				$row = "OL,$OL,$textcol$line".(104+$i)."\r\n";
+			} else {
+				$row = "OL,$OL,$textcol$line\r\n";
+			}
+			echo $row;
+			$output .= $row;
 			$OL++;
-		if ($OL==17)
-		{
-			echo "OL,17,ƒ Other news $b/3 \r\n";
-			$i-=$a;
 		}
-		else
-		{
-			echo "OL,$OL,$textcol$headline".(104+$i)."\r\n";
+
+		if ($OL < $MAXOL) {
+			$sep = "OL,$OL, \r\n";
+			echo $sep;
+			$output .= $sep;
+			$OL++;
 		}
-		if ($OL<17) 
-			$first[$i] = "OL,$OL,$textcol$headline".(104+$i)."\r\n";
-		$OL++;
+
+		$first[$i] = $output;
+	}
+
+	return count($first);
 }
-}
-function writeSPage($a,$b)
+
+function writeSPage($startIndex, $b, $ft)
 {
-	$count=21;	// Number of headlines in P100
-	$OL=17;
-	
-	for ($i=12;$i<$count && $OL<21;$i++)
-		{
-		$page="page$i.html";		// The default input name
-		$html = file_get_html($page);	// Get the whole file
-		$cat=$html->find("title");
-		$headline=	htmlspecialchars_decode ($cat[0]->plaintext,ENT_QUOTES);		// Decode html entities	
-		$textcol='‡';	// white
-	
-		$headline=myTruncate2($headline, 33, " ");
-		if (strlen($headline)<36)
-		{
-			$headline=substr(str_pad($headline,35),0,35);
-			$headline.='ƒ';
-		
+	$count=21;
+	$OL=18;
+	$MAXOL=21;
+
+	echo "OL,17,\x83 Other news $b/3 \r\n";
+
+	for ($i=$startIndex; $i<$count && $OL<$MAXOL; $i++)
+	{
+		$lines = getLines($i, $ft);
+		$numLines = count($lines);
+		$textcol="\x87";	// white
+
+		if ($OL + $numLines > $MAXOL) break;
+
+		foreach ($lines as $li => $line) {
+			$line = substr(str_pad($line, 35), 0, 35);
+			if ($li == $numLines-1) {
+				$line .= "\x83";
+				echo "OL,$OL,$textcol$line".(104+$i)."\r\n";
+			} else {
+				echo "OL,$OL,$textcol$line\r\n";
+			}
+			$OL++;
 		}
-		if ($OL==17)
-		{
-			echo "OL,17,ƒ Other news $b/3 \r\n";
-			$i-=$a;
-		}
-		else
-			echo "OL,$OL,$textcol$headline".(104+$i)."\r\n";
-		$OL++;
+	}
+
+	return $i;
 }
-}
+
+
 writepageHeader();
+
 writeHeader(1);
-writePage(1,1,$ft);
+$firstEndIndex = writePage($ft);
+$p2start = writeSPage($firstEndIndex, 1, $ft);
 writeFooter();
 
 writeHeader(2);
-foreach ( $first as $item ) {
-	echo $item;
-}
-writeSPage(-2,2);
+foreach ($first as $item) echo $item;
+$p3start = writeSPage($p2start, 2, $ft);
 writeFooter();
 
 writeHeader(3);
-foreach ( $first as $item ) {
-	echo $item;
-}
-writeSPage(-5,3,$first);
+foreach ($first as $item) echo $item;
+writeSPage($p3start, 3, $ft);
 writeFooter();
 ?>
