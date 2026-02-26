@@ -5,7 +5,7 @@ If you do not already have the php interpreter installed type
 
 <b>sudo apt-get update</b>
 
-<b>sudo apt-get install php8.4</b>
+<b>sudo apt-get install php</b> (Tested on PHP 8.4 and 8.5)
 
 Place all the files in a handy folder. In my case I'm using /home/pi/makenews.
 To make it easier to update files I'll use git.
